@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Empresa {
+  id              Int          @id @default(autoincrement())
+  nombre          String
+  cif             String?
+  sector          String
+  municipio       String
+  direccion       String?
+  web             String?
+  telefono        String?
+  email           String?
+  contactoNombre  String?
+  contactoCargo   String?
+  ciclosAceptados String
+  plazas          Int          @default(0)
+  modalidad       String       @default("General")
+  estado          String       @default("PROSPECTO")
+  valoracion      Int          @default(3)
+  observaciones   String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  asignaciones    Asignacion[]
+  convenios       Convenio[]
+}
+
+model Alumno {
+  id            Int          @id @default(autoincrement())
+  nombre        String
+  apellidos     String
+  email         String?
+  telefono      String?
+  ciclo         String
+  curso         String
+  prlSuperada   Boolean      @default(false)
+  aptoFfe       Boolean      @default(false)
+  preferencias  String?
+  observaciones String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  asignaciones  Asignacion[]
+}
+
+model Convenio {
+  id            Int      @id @default(autoincrement())
+  empresaId     Int
+  titulo        String
+  fechaInicio   DateTime
+  fechaFin      DateTime
+  estado        String   @default("BORRADOR")
+  documentoUrl  String?
+  observaciones String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  empresa       Empresa  @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+}
+
+model Asignacion {
+  id              Int           @id @default(autoincrement())
+  alumnoId        Int
+  empresaId       Int
+  fechaInicio     DateTime
+  fechaFin        DateTime
+  horasPrevistas  Int           @default(500)
+  horasRealizadas Int           @default(0)
+  tutorCentro     String
+  tutorEmpresa    String?
+  estado          String        @default("PROPUESTA")
+  planFormacion   String?
+  observaciones   String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  alumno          Alumno        @relation(fields: [alumnoId], references: [id], onDelete: Cascade)
+  empresa         Empresa       @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  seguimientos    Seguimiento[]
+}
+
+model Seguimiento {
+  id           Int        @id @default(autoincrement())
+  asignacionId Int
+  fecha        DateTime
+  horas        Int        @default(0)
+  resumen      String
+  incidencia   String?
+  resultado    String     @default("CORRECTO")
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  asignacion   Asignacion @relation(fields: [asignacionId], references: [id], onDelete: Cascade)
+}
+
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  nombre    String
+  username  String   @unique
+  password  String
+  rol       String   @default("TUTOR")
+  activo    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
