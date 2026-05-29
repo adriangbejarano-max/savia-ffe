@@ -12,6 +12,7 @@ import {
   Sparkles,
   LogOut,
   UserCircle2,
+  Users,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -30,10 +31,16 @@ const allLinks = [
     roles: ["ADMIN", "COORDINADOR", "TUTOR"],
   },
   {
+    href: "/usuarios",
+    label: "Usuarios",
+    icon: Users,
+    roles: ["ADMIN"],
+  },
+  {
     href: "/empresas",
     label: "Empresas",
     icon: Building2,
-    roles: ["ADMIN", "COORDINADOR"],
+    roles: ["ADMIN", "COORDINADOR", "TUTOR"],
   },
   {
     href: "/alumnos",

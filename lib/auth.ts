@@ -46,3 +46,55 @@ export function verifySessionToken(token?: string): SessionUser | null {
 }
 
 export { COOKIE_NAME };
+
+import { NextRequest, NextResponse } from "next/server";
+
+export function getUserFromRequest(req: NextRequest) {
+  const token = req.cookies.get("savia_session")?.value;
+  return verifySessionToken(token);
+}
+
+export function requireApiUser(req: NextRequest) {
+  const user = getUserFromRequest(req);
+
+  if (!user) {
+    return {
+      user: null,
+      response: NextResponse.json(
+        { error: "No autenticado." },
+        { status: 401 }
+      ),
+    };
+  }
+
+  return {
+    user,
+    response: null,
+  };
+}
+
+export function requireApiRole(req: NextRequest, roles: string[]) {
+  const { user, response } = requireApiUser(req);
+
+  if (response || !user) {
+    return {
+      user: null,
+      response,
+    };
+  }
+
+  if (!roles.includes(user.rol)) {
+    return {
+      user,
+      response: NextResponse.json(
+        { error: "No tienes permisos para realizar esta acción." },
+        { status: 403 }
+      ),
+    };
+  }
+
+  return {
+    user,
+    response: null,
+  };
+}
