@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Empresa {
-  id              Int          @id @default(autoincrement())
+  id              Int      @id @default(autoincrement())
   nombre          String
   cif             String?
   sector          String
@@ -20,32 +20,73 @@ model Empresa {
   contactoNombre  String?
   contactoCargo   String?
   ciclosAceptados String
-  plazas          Int          @default(0)
-  modalidad       String       @default("General")
-  estado          String       @default("PROSPECTO")
-  valoracion      Int          @default(3)
+  plazas          Int      @default(0)
+  modalidad       String   @default("General")
+  estado          String   @default("PROSPECTO")
+  valoracion      Int      @default(3)
   observaciones   String?
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
-  asignaciones    Asignacion[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
   convenios       Convenio[]
+  asignaciones    Asignacion[]
+  usuarios        Usuario[]
+}
+
+model Clase {
+  id        Int      @id @default(autoincrement())
+  nombre    String   @unique
+  etapa     String?
+  ciclo     String?
+  activa    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  alumnos  Alumno[]
+  usuarios Usuario[]
 }
 
 model Alumno {
-  id            Int          @id @default(autoincrement())
-  nombre        String
-  apellidos     String
-  email         String?
-  telefono      String?
-  ciclo         String
-  curso         String
-  prlSuperada   Boolean      @default(false)
-  aptoFfe       Boolean      @default(false)
-  preferencias  String?
-  observaciones String?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  asignaciones  Asignacion[]
+  id              Int      @id @default(autoincrement())
+  nombre          String
+  apellidos       String
+  email           String?
+  telefono        String?
+  ciclo           String
+  curso           String
+  claseId         Int?
+  prlSuperada     Boolean  @default(false)
+  aptoFfe         Boolean  @default(false)
+  preferencias    String?
+  observaciones   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  clase           Clase?   @relation(fields: [claseId], references: [id], onDelete: SetNull)
+  asignaciones    Asignacion[]
+  usuarios        Usuario[]
+}
+
+model Usuario {
+  id                  Int      @id @default(autoincrement())
+  nombre              String
+  apellidos           String?
+  username            String   @unique
+  email               String?
+  password            String
+  rol                 String   @default("TUTOR")
+  activo              Boolean  @default(true)
+  fotoUrl             String?
+  claseId             Int?
+  empresaId           Int?
+  alumnoId            Int?
+  debeCambiarPassword Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  clase               Clase?   @relation(fields: [claseId], references: [id], onDelete: SetNull)
+  empresa             Empresa? @relation(fields: [empresaId], references: [id], onDelete: SetNull)
+  alumno              Alumno?  @relation(fields: [alumnoId], references: [id], onDelete: SetNull)
 }
 
 model Convenio {
@@ -93,15 +134,4 @@ model Seguimiento {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   asignacion   Asignacion @relation(fields: [asignacionId], references: [id], onDelete: Cascade)
-}
-
-model Usuario {
-  id        Int      @id @default(autoincrement())
-  nombre    String
-  username  String   @unique
-  password  String
-  rol       String   @default("TUTOR")
-  activo    Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
